@@ -1,0 +1,147 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+
+<div class="ab-page">
+  <h2 class="ab-dashboard-title">Community</h2>
+
+  <!-- =========================
+       Favorite items section
+       Shows top-rated HUDS foods
+       ========================== -->
+  <div class="ab-summary-card">
+    <h3 class="ab-section-title">Student favorite items</h3>
+
+    <!-- Scrollable list of favorites -->
+    <div class="favorite-scroll">
+      {% if favorites %}
+        {% for row in favorites %}
+          <div class="ab-all-item-card favorite-card">
+            <div class="ab-all-item-header">
+              <div class="ab-all-item-name">{{ row.name }}</div>
+            </div>
+            <div class="ab-food-body">
+              <div><strong>Average rating:</strong> {{ row.avg_rating }}</div>
+              <div><strong># of ratings:</strong> {{ row.num_ratings }}</div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <!-- Empty state when no ratings exist yet -->
+        <p class="ab-muted">
+          No ratings yet — rate some items on the dashboard to populate this list!
+        </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <hr class="my-4">
+
+  <!-- =========================
+       Club post submission form
+       Lets students advertise food at club events
+       ========================== -->
+  <div class="ab-summary-card">
+    <h3 class="ab-section-title">Club food posts</h3>
+
+    <!-- POSTs back to /community (same route) -->
+    <form method="post" action="{{ url_for('community') }}" class="ab-card-grid">
+      <div class="mb-3">
+        <label for="clubName" class="form-label">Club name</label>
+        <input type="text" class="form-control ab-food-body" id="clubName" name="clubName" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="foodName" class="form-label">Food name</label>
+        <input type="text" class="form-control ab-food-body" id="foodName" name="foodName" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="event_date" class="form-label">Date of event</label>
+        <input type="date" class="form-control ab-food-body" id="event_date" name="event_date" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="location" class="form-label">Location</label>
+        <input
+          type="text"
+          class="form-control ab-food-body"
+          id="location"
+          name="location"
+          placeholder="e.g., Annenberg Balcony, Leverett JCR"
+          required
+        >
+      </div>
+
+      <div class="mb-3">
+        <label for="description" class="form-label">Description (optional)</label>
+        <textarea
+          class="form-control ab-food-body"
+          id="description"
+          name="description"
+          rows="2"
+          placeholder="e.g., Free dumplings at our board game night!"
+        ></textarea>
+      </div>
+
+      <div class="ab-card-actions">
+        <button type="submit" class="ab-btn ab-btn-primary">Post to community</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- =========================
+       Existing club posts
+       Rendered under the form
+       ========================== -->
+  {% if posts %}
+    <div class="ab-card-grid">
+      {% for post in posts %}
+        <div class="ab-all-item-card">
+          <div class="ab-all-item-header">
+            <div class="ab-all-item-name">{{ post.foodName }}</div>
+          </div>
+
+          <!-- Post metadata -->
+          <div class="ab-food-body">
+            <div><strong>Club:</strong> {{ post.clubName }}</div>
+            <div><strong>Date:</strong> {{ post.event_date or 'Date TBA' }}</div>
+            <div><strong>Location:</strong> {{ post.location or 'Location TBA' }}</div>
+            {% if post.description %}
+              <div><strong>Description:</strong> {{ post.description }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Timestamp footer -->
+          <div class="ab-card-actions">
+            <small class="ab-muted">Posted on {{ post.created_at }}</small>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <!-- Empty state when no club posts exist -->
+    <p class="ab-muted">
+      No club posts yet — be the first to share what your club is serving!
+    </p>
+  {% endif %}
+</div>
+{% endblock %}
+
+<style>
+/* Add spacing between favorite cards */
+.favorite-card {
+  margin-bottom: 1rem;
+}
+
+/* Make favorites area scroll if it gets tall */
+.favorite-scroll {
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-right: 4px; /* keeps scrollbar off the text */
+}
+</style>

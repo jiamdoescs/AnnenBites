@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+
+<div class="ab-page">
+
+  <!-- Hero/header image for the feedback page -->
+  <div class="ab-dashboard-header">
+    <img
+      src="{{ url_for('static', filename='food.jpeg') }}"
+      alt="Dashboard Header"
+      class="header-img"
+    >
+  </div>
+
+  <h2 class="ab-dashboard-title">Anonymous Comments</h2>
+
+  <!-- =========================
+       Feedback submission form
+       Lets logged-in users post anonymous comments
+       ========================== -->
+  <div class="ab-summary-card">
+    <h3 class="ab-section-title">Leave your feedback</h3>
+
+    <!-- POSTs to /feedback; server handles insert + redirect -->
+    <form method="POST" action="{{ url_for('feedback') }}" class="mb-3 ab-card-grid">
+      <div class="mb-2">
+        <textarea
+          name="text"
+          class="form-control ab-food-body"
+          rows="3"
+          placeholder="Write your feedback..."
+          required
+          maxlength="800"
+        ></textarea>
+      </div>
+      <div class="ab-card-actions">
+        <button type="submit" class="ab-btn ab-btn-primary">Submit</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- =========================
+       Existing feedback list
+       Shows all comments + like counts
+       ========================== -->
+  {% if feedbacks %}
+    {% for f in feedbacks %}
+      <div class="ab-all-item-card feedback-card">
+        <div class="ab-all-item-header">
+          <!-- Feedback text -->
+          <div class="ab-all-item-name">{{ f.text }}</div>
+          <small class="ab-muted">Posted on {{ f.created_at }}</small>
+        </div>
+
+        <!-- Like / unlike button for this feedback -->
+        <div class="ab-card-actions">
+          <form method="POST" action="{{ url_for('feedback_like') }}" style="display:inline">
+            <input type="hidden" name="feedback_id" value="{{ f.id }}">
+            <button
+              type="submit"
+              class="ab-btn ab-btn-ghost ab-btn-sm {% if f.id in liked_map %}ab-btn-liked{% endif %}"
+            >
+              👍 {{ f.likes }}
+            </button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <!-- Empty state if no one has posted feedback yet -->
+    <p class="ab-muted">No public feedback yet — be the first!</p>
+  {% endif %}
+</div>
+
+<style>
+/* Add spacing between feedback cards in the list */
+.feedback-card {
+  margin-bottom: 1rem;
+}
+</style>
+
+{% endblock %}

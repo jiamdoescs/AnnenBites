@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+  <!-- Simple registration form for new users -->
+  <h2>Register</h2>
+
+  <!-- Submits to /register, which creates a new user and logs them in -->
+  <form action="/register" method="post">
+    <div class="mb-3">
+      <label for="username" class="form-label">Username</label>
+      <input
+        autocomplete="off"
+        autofocus
+        class="form-control"
+        id="username"
+        name="username"
+        type="text"
+      >
+    </div>
+
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input
+        class="form-control"
+        id="password"
+        name="password"
+        type="password"
+      >
+    </div>
+
+    <div class="mb-3">
+      <label for="confirmation" class="form-label">Confirm Password</label>
+      <input
+        class="form-control"
+        id="confirmation"
+        name="confirmation"
+        type="password"
+      >
+    </div>
+
+    <button class="btn btn-primary" type="submit">Register</button>
+  </form>
+
+  <!-- Any registration errors (e.g., username taken, passwords mismatch) -->
+  <p>{{ errorMessage }}</p>
+
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+  <!-- Login form for existing users -->
+  <h2>Log In</h2>
+
+  <!-- Sends POST to /login; server validates username/password and sets session -->
+  <form action="/login" method="post">
+    <div class="mb-3">
+      <label for="username" class="form-label">Username</label>
+      <input
+        autocomplete="off"
+        autofocus
+        class="form-control"
+        id="username"
+        name="username"
+        type="text"
+      >
+    </div>
+
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input
+        class="form-control"
+        id="password"
+        name="password"
+        type="password"
+      >
+    </div>
+
+    <button class="btn btn-primary" type="submit">Log In</button>
+  </form>
+
+  <!-- Error message (e.g., invalid credentials, missing fields) -->
+  <p>{{ errorMessage }}</p>
+
+{% endblock %}

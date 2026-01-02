@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+  <!-- Simple summary view of everything logged for a given date -->
+  <h1>Today's Intake</h1>
+  <p class="text-muted">Date: {{ current_date }}</p>
+
+  {% if items %}
+    <!-- Table of all items the user logged for this day (across meals) -->
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Meal</th>
+          <th>Item</th>
+          <th>Calories</th>
+          <th>Protein (g)</th>
+          <th>Carbs (g)</th>
+          <th>Fat (g)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+          <tr>
+            <td>{{ item.meal|capitalize }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.calories or "N/A" }}</td>
+            <td>{{ item.protein or "N/A" }}</td>
+            <td>{{ item.carbs or "N/A" }}</td>
+            <td>{{ item.fat or "N/A" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Aggregated daily totals for the logged items -->
+    <div class="mt-3">
+      <h4>Totals</h4>
+      <p>
+        <strong>Calories:</strong> {{ totals.calories|round(0) }} kcal<br>
+        <strong>Protein:</strong> {{ totals.protein|round(1) }} g<br>
+        <strong>Carbs:</strong> {{ totals.carbs|round(1) }} g<br>
+        <strong>Fat:</strong> {{ totals.fat|round(1) }} g
+      </p>
+    </div>
+
+    <!-- Reset button clears all logged intake for this date -->
+    <form action="{{ url_for('reset_intake') }}" method="post" class="mt-3">
+      <input type="hidden" name="date" value="{{ current_date }}">
+      <!-- Meal here is only used for redirect; any value works -->
+      <input type="hidden" name="meal" value="breakfast">
+      <button class="btn btn-outline-danger" type="submit">
+        Reset today's intake (all meals)
+      </button>
+    </form>
+  {% else %}
+    <!-- Empty state if user has not logged anything yet -->
+    <p>You haven't logged any items for this date yet.</p>
+  {% endif %}
+
+{% endblock %}

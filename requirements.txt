@@ -1,0 +1,9 @@
+Flask
+Flask-Session
+cs50
+Werkzeug
+Jinja2
+itsdangerous
+click
+requests
+bs4

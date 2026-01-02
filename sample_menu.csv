@@ -1,0 +1,14 @@
+date,meal,location,name,category,calories,protein,carbs,fat,tags
+2025-12-01,breakfast,Annenberg,Scrambled Eggs,entree,200,14,2,14,"gluten-free"
+2025-12-01,breakfast,Annenberg,Oatmeal,entree,180,6,32,3,"vegetarian, vegan"
+2025-12-01,breakfast,Annenberg,Greek Yogurt Parfait,side,220,15,28,4,"vegetarian"
+
+2025-12-01,lunch,Annenberg,Grilled Chicken,entree,300,35,5,10,"gluten-free"
+2025-12-01,lunch,Annenberg,Roasted Vegetables,side,120,3,15,4,"vegetarian, vegan"
+2025-12-01,lunch,Annenberg,Mac and Cheese,entree,550,18,60,25,"vegetarian"
+2025-12-01,lunch,Annenberg,Quinoa Salad,side,250,9,35,8,"vegetarian, gluten-free"
+
+2025-12-01,dinner,Annenberg,Baked Salmon,entree,400,34,0,22,"gluten-free"
+2025-12-01,dinner,Annenberg,Steamed Rice,side,200,4,44,1,"vegan"
+2025-12-01,dinner,Annenberg,Tofu Stir-Fry,entree,320,18,30,14,"vegan"
+2025-12-01,dinner,Annenberg,Chocolate Brownie,dessert,280,4,40,12,"vegetarian"

@@ -1,0 +1,243 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+
+<div class="ab-page">
+
+  <!-- =========================
+       Hero header image
+       ========================== -->
+  <div class="dashboard-header">
+    <img
+      src="{{ url_for('static', filename='annenbergPhoto.JPEG') }}"
+      alt="Dashboard Header"
+      class="header-img"
+    >
+  </div>
+
+  <!-- =========================
+       Today’s intake summary card
+       Shows totaled macros for the selected date
+       ========================== -->
+  <section class="ab-summary-card">
+    <div class="ab-summary-header">
+      <div>
+        <div class="ab-summary-title">
+          Today’s intake
+          {% if current_date %}
+            <span class="ab-summary-date">({{ current_date }})</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Button to clear all logged meals for this date -->
+      {% if current_date %}
+        <form method="post" action="{{ url_for('reset_intake') }}">
+          <input type="hidden" name="date" value="{{ current_date }}">
+          <input type="hidden" name="meal" value="{{ meal }}">
+          <button class="ab-btn ab-btn-danger-outline" type="submit">
+            Reset today’s intake
+          </button>
+        </form>
+      {% endif %}
+    </div>
+
+    {% if totals %}
+      <!-- Macro totals pulled from user_meals + menu_items -->
+      <div class="ab-summary-grid">
+        <div>
+          <div class="ab-summary-metric-label">Calories</div>
+          <div class="ab-summary-metric-value">
+            {{ "%.1f"|format(totals.calories) }} kcal
+          </div>
+        </div>
+        <div>
+          <div class="ab-summary-metric-label">Protein</div>
+          <div class="ab-summary-metric-value">
+            {{ "%.1f"|format(totals.protein) }} g
+          </div>
+        </div>
+        <div>
+          <div class="ab-summary-metric-label">Carbs</div>
+          <div class="ab-summary-metric-value">
+            {{ "%.1f"|format(totals.carbs) }} g
+          </div>
+        </div>
+        <div>
+          <div class="ab-summary-metric-label">Fat</div>
+          <div class="ab-summary-metric-value">
+            {{ "%.1f"|format(totals.fat) }} g
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </section>
+
+  <!-- =========================
+       Dashboard header row
+       Includes meal selector (B/L/D)
+       ========================== -->
+  <div class="ab-dashboard-header">
+    <div>
+      <div class="ab-dashboard-title">Dashboard</div>
+      <div class="ab-muted">Recommended for you based on your preferences.</div>
+    </div>
+
+    <!-- GET form that reloads dashboard with new meal/date -->
+    <form class="ab-meal-select-form" method="get" action="{{ url_for('dashboard') }}">
+      <label for="meal">Meal:</label>
+      <select id="meal" name="meal" class="ab-select" onchange="this.form.submit()">
+        <option value="breakfast" {% if meal == 'breakfast' %}selected{% endif %}>Breakfast</option>
+        <option value="lunch" {% if meal == 'lunch' %}selected{% endif %}>Lunch</option>
+        <option value="dinner" {% if meal == 'dinner' %}selected{% endif %}>Dinner</option>
+      </select>
+      {% if current_date %}
+        <input type="hidden" name="date" value="{{ current_date }}">
+      {% endif %}
+    </form>
+  </div>
+
+  <!-- =========================
+       Recommended items
+       Top 3 scored items with diverse categories
+       ========================== -->
+  <h2 class="ab-section-title">Recommended for you</h2>
+
+  {% if recommendations %}
+    <div class="ab-card-grid">
+      {% for item in recommendations %}
+        {% set logged_id = selected_ids.get(item.id) %}
+        {% set current_rating = ratings.get(item.id) if ratings is defined else None %}
+
+        <article class="ab-food-card">
+          <div class="ab-food-body">
+            <div class="ab-food-name">{{ item.name }}</div>
+
+            <!-- Macro breakdown for this item -->
+            <div class="ab-macros">
+              <div><span>Calories:</span> {{ item.calories or 0 }} kcal</div>
+              <div><span>Protein:</span> {{ item.protein or 0 }} g</div>
+              <div><span>Carbs:</span> {{ item.carbs or 0 }} g</div>
+              <div><span>Fat:</span> {{ item.fat or 0 }} g</div>
+            </div>
+
+            <!-- Log / unlog button -->
+            <div class="ab-card-actions">
+              {% if logged_id %}
+                <!-- If already logged, show “✓ Logged” and allow removal -->
+                <form method="post" action="{{ url_for('remove_meal') }}">
+                  <input type="hidden" name="user_meal_id" value="{{ logged_id }}">
+                  <input type="hidden" name="meal" value="{{ meal }}">
+                  <input type="hidden" name="date" value="{{ current_date }}">
+                  <button type="submit" class="ab-btn ab-btn-logged">✓ Logged</button>
+                </form>
+              {% else %}
+                <!-- Otherwise, allow the user to log this item -->
+                <form method="post" action="{{ url_for('add_meal') }}">
+                  <input type="hidden" name="menu_item_id" value="{{ item.id }}">
+                  <input type="hidden" name="meal" value="{{ item.meal|lower }}">
+                  <input type="hidden" name="date" value="{{ current_date }}">
+                  <button type="submit" class="ab-btn ab-btn-primary">I ate this</button>
+                </form>
+              {% endif %}
+            </div>
+
+            <!-- Per-item rating form -->
+            <form method="post" action="{{ url_for('item_feedback') }}" class="ab-rating">
+              <span>Rate (1 = lowest, 5 = highest):</span>
+              <select name="rating" class="ab-rating-select">
+                <option value="" disabled {% if not current_rating %}selected{% endif %}>--</option>
+                <option value="1" {% if current_rating == 1 %}selected{% endif %}>1</option>
+                <option value="2" {% if current_rating == 2 %}selected{% endif %}>2</option>
+                <option value="3" {% if current_rating == 3 %}selected{% endif %}>3</option>
+                <option value="4" {% if current_rating == 4 %}selected{% endif %}>4</option>
+                <option value="5" {% if current_rating == 5 %}selected{% endif %}>5</option>
+              </select>
+              <input type="hidden" name="menu_item_id" value="{{ item.id }}">
+              <input type="hidden" name="meal" value="{{ meal }}">
+              <input type="hidden" name="date" value="{{ current_date }}">
+              <button type="submit" class="ab-btn ab-btn-ghost ab-rating-save">Save</button>
+            </form>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <!-- Empty state when the recommender returns nothing -->
+    <p class="ab-all-items-empty">No recommendations available for this meal.</p>
+  {% endif %}
+
+  <!-- =========================
+       All menu items section
+       Lists every item for this meal/date
+       ========================== -->
+  <h2 class="ab-section-title">All menu items for this meal</h2>
+
+  {% if items %}
+    <div class="ab-card-grid">
+      {% for item in items %}
+        {% set logged_id = selected_ids.get(item.id) %}
+        {% set current_rating = ratings.get(item.id) if ratings is defined else None %}
+
+        <article class="ab-all-item-card">
+          <div class="ab-all-item-header">
+            <div class="ab-all-item-name">{{ item.name }}</div>
+
+            <!-- Same log/unlog UX as above, but for the full list -->
+            <div>
+              {% if logged_id %}
+                <form method="post" action="{{ url_for('remove_meal') }}">
+                  <input type="hidden" name="user_meal_id" value="{{ logged_id }}">
+                  <input type="hidden" name="meal" value="{{ meal }}">
+                  <input type="hidden" name="date" value="{{ current_date }}">
+                  <button type="submit" class="ab-btn ab-btn-logged">✓ Logged</button>
+                </form>
+              {% else %}
+                <form method="post" action="{{ url_for('add_meal') }}">
+                  <input type="hidden" name="menu_item_id" value="{{ item.id }}">
+                  <input type="hidden" name="meal" value="{{ meal }}">
+                  <input type="hidden" name="date" value="{{ current_date }}">
+                  <button type="submit" class="ab-btn ab-btn-primary">I ate this</button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Macro breakdown -->
+          <div class="ab-macros">
+            <div><span>Calories:</span> {{ item.calories or 0 }} kcal</div>
+            <div><span>Protein:</span> {{ item.protein or 0 }} g</div>
+            <div><span>Carbs:</span> {{ item.carbs or 0 }} g</div>
+            <div><span>Fat:</span> {{ item.fat or 0 }} g</div>
+          </div>
+
+          <!-- Rating dropdown for any item in the list -->
+          <form method="post" action="{{ url_for('item_feedback') }}" class="ab-rating">
+            <span>Rate:</span>
+            <select name="rating" class="ab-rating-select">
+              <option value="" disabled {% if not current_rating %}selected{% endif %}>--</option>
+              <option value="1" {% if current_rating == 1 %}selected{% endif %}>1</option>
+              <option value="2" {% if current_rating == 2 %}selected{% endif %}>2</option>
+              <option value="3" {% if current_rating == 3 %}selected{% endif %}>3</option>
+              <option value="4" {% if current_rating == 4 %}selected{% endif %}>4</option>
+              <option value="5" {% if current_rating == 5 %}selected{% endif %}>5</option>
+            </select>
+            <span>(1 = lowest, 5 = highest)</span>
+            <input type="hidden" name="menu_item_id" value="{{ item.id }}">
+            <input type="hidden" name="meal" value="{{ meal }}">
+            <input type="hidden" name="date" value="{{ current_date }}">
+            <button type="submit" class="ab-btn ab-btn-ghost ab-rating-save">Save</button>
+          </form>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <!-- If HUDS returned nothing for this meal/date -->
+    <p class="ab-all-items-empty">No menu items found for this meal.</p>
+  {% endif %}
+
+</div>
+
+{% endblock %}

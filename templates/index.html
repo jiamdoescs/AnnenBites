@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+
+<div class="ab-page">
+
+  <!-- Landing-page header image -->
+  <div class="dashboard-header">
+    <img
+      src="{{ url_for('static', filename='annenbergPhoto.JPEG') }}"
+      alt="Dashboard Header"
+      class="header-img"
+    >
+  </div>
+
+  <!-- Simple home screen with navigation shortcuts -->
+  <div class="text-center">
+    <h1 class="mb-3">Welcome to Annenbites</h1>
+    <p class="lead">Personalized HUDS meal recommendations for Harvard students.</p>
+
+    <!-- Auth + main sections links -->
+    <a href="/login" class="btn btn-primary m-2">Log In</a>
+    <a href="/register" class="btn btn-outline-primary m-2">Register</a>
+    <a href="/community" class="btn btn-outline-primary m-2">Community</a>
+    <a href="/feedback" class="btn btn-outline-primary m-2">Feedback</a>
+  </div>
+</div>
+
+{% endblock %}

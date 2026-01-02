@@ -1,0 +1,149 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+
+<div class="ab-page">
+  <!-- Page title for preferences -->
+  <h2 class="ab-dashboard-title">Your Food Preferences</h2>
+
+  <!-- Main preferences form that controls recommendations -->
+  <div class="ab-summary-card">
+    <form action="/preferences" method="post" class="ab-card-grid">
+
+      <!-- Dietary restrictions checkboxes (saved as a list) -->
+      <div class="mb-3">
+        <label class="form-label d-block">Dietary restrictions</label>
+
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            name="dietary"
+            id="diet-veg"
+            value="vegetarian"
+            {% if 'vegetarian' in dietary %}checked{% endif %}
+          >
+          <label class="form-check-label" for="diet-veg">Vegetarian</label>
+        </div>
+
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            name="dietary"
+            id="diet-vegan"
+            value="vegan"
+            {% if 'vegan' in dietary %}checked{% endif %}
+          >
+          <label class="form-check-label" for="diet-vegan">Vegan</label>
+        </div>
+
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            name="dietary"
+            id="diet-glutenfree"
+            value="gluten-free"
+            {% if 'gluten-free' in dietary %}checked{% endif %}
+          >
+          <label class="form-check-label" for="diet-glutenfree">Gluten-free</label>
+        </div>
+      </div>
+
+      <!-- Wellness goal drop-down, pre-filled from existing prefs -->
+      <div class="mb-3">
+        <label for="wellness_goal" class="form-label">Wellness goal</label>
+        {% set goal = prefs.wellness_goal if prefs else '' %}
+        <select class="ab-select" id="wellness_goal" name="wellness_goal">
+          <option value="">Select a goal</option>
+          <option value="gain muscle" {% if goal == 'gain muscle' %}selected{% endif %}>Gain muscle</option>
+          <option value="maintain" {% if goal == 'maintain' %}selected{% endif %}>Maintain</option>
+          <option value="lose weight" {% if goal == 'lose weight' %}selected{% endif %}>Lose weight</option>
+        </select>
+      </div>
+
+      <!-- Optional height/weight fields (used for future extensions / context) -->
+      <div class="row mb-3">
+        <div class="col-md-6 col-12">
+          <label for="height_cm" class="form-label">Height (cm)</label>
+          <input
+            type="number"
+            class="form-control"
+            id="height_cm"
+            name="height_cm"
+            step="0.1"
+            min="0"
+            placeholder="e.g., 170"
+            value="{{ prefs.height_cm if prefs and prefs.height_cm is not none else '' }}"
+          >
+        </div>
+        <div class="col-md-6 col-12">
+          <label for="weight_kg" class="form-label">Weight (kg)</label>
+          <input
+            type="number"
+            class="form-control"
+            id="weight_kg"
+            name="weight_kg"
+            step="0.1"
+            min="0"
+            placeholder="e.g., 65"
+            value="{{ prefs.weight_kg if prefs and prefs.weight_kg is not none else '' }}"
+          >
+        </div>
+      </div>
+
+      <!-- Free-text favorite cuisines / dishes; used to boost scores -->
+      <div class="mb-3">
+        <label for="fav_cuisines" class="form-label">Favorite cuisines or dishes</label>
+        <input
+          type="text"
+          class="form-control"
+          id="fav_cuisines"
+          name="fav_cuisines"
+          placeholder="e.g., Italian, Korean, sushi"
+          value="{{ prefs.fav_cuisines if prefs else '' }}"
+        >
+      </div>
+
+      <!-- Free-text disliked foods; used to penalize scores -->
+      <div class="mb-3">
+        <label for="disliked_items" class="form-label">Foods you dislike</label>
+        <input
+          type="text"
+          class="form-control"
+          id="disliked_items"
+          name="disliked_items"
+          placeholder="e.g., mushrooms, mayo"
+          value="{{ prefs.disliked_items if prefs else '' }}"
+        >
+      </div>
+
+      <!-- Submit button: saves or updates preferences for this user -->
+      <div class="ab-card-actions">
+        <button type="submit" class="ab-btn ab-btn-primary">Save preferences</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Optional section: shows this user's past feedback and likes -->
+  {% if user_feedback %}
+    <hr>
+    <h3 class="ab-section-title">Your Feedback</h3>
+    <div class="ab-card-grid">
+      {% for f in user_feedback %}
+        <div class="ab-all-item-card">
+          <div class="ab-all-item-header">
+            <div class="ab-all-item-name">{{ f.text }}</div>
+            <small class="ab-muted"> Written on {{ f.created_at }}</small>
+          </div>
+          <div class="ab-card-actions">
+            <span class="ab-muted">{{ f.likes }} 👍</span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
